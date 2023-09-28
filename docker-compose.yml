@@ -12,7 +12,7 @@ services:
 
   ds-server:
     build:
-      dockerfile: /Dockerfile
+      dockerfile: Dockerfile
       context: ./server
     container_name: ds-server
     restart: unless-stopped
