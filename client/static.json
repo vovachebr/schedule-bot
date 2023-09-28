@@ -1,0 +1,8 @@
+{
+    "root": "build/",
+    "proxies": {
+      "/": {
+        "origin": "${REACT_APP_API_URL}"
+      }
+    }
+  }

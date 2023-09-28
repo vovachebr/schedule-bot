@@ -1,0 +1,44 @@
+services:
+  ds-client:
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+    container_name: ds-client
+    restart: unless-stopped
+    env_file:
+      - .env.ds
+    ports:
+      - '3010:3000'
+
+  ds-server:
+    build:
+      dockerfile: /Dockerfile
+      context: ./server
+    container_name: ds-server
+    restart: unless-stopped
+    env_file:
+      - .env.ds
+    ports:
+      - '3020:3000'
+
+  programming-client:
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+    container_name: programming-client
+    restart: unless-stopped
+    env_file:
+      - .env.programming
+    ports:
+      - '4010:3000'
+
+  programming-server:
+    build:
+      dockerfile: Dockerfile
+      context: ./server
+    container_name: programming-server
+    restart: unless-stopped
+    env_file:
+      - .env.programming
+    ports:
+      - '4020:3000'
