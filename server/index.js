@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { PORT, DISCORD_BOT_TOKEN } = process.env;
+const { PORT, DISCORD_BOT_TOKEN, TELEGRAM_BOT_TOKEN } = process.env;
 const express = require('express');
 const basicAuth = require('express-basic-auth');
 const path = require('path');
@@ -24,17 +24,21 @@ job.start();
 
 discordBot.login(DISCORD_BOT_TOKEN);
 const app = express();
-app.use(basicAuth({
+app.use((req, res, next) => {
+  if(req.url.startsWith('/api/images/getImageByName')) {
+    next();
+  }
+}), basicAuth({
   authorizer: (username, password) => !!(username && password),
   unauthorizedResponse: () => 'No credentials provided'
-}));
+});
 app.use(morgan('tiny'));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', api);
 
-app.post(`/bot${process.env.TELEGRAM_BOT_TOKEN}`, function(request, response){
+app.post(`/bot${TELEGRAM_BOT_TOKEN}`, function(request, response){
   telegammBot.processUpdate(request.body);
 });
 
