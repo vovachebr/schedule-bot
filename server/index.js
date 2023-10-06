@@ -6,7 +6,7 @@ const path = require('path');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const api = require('./routes').router;
-const telegammBot = require('./telegramBot');
+const telegramBot = require('./telegramBot');
 const discordBot = require('./discordBot');
 const CronJob = require('cron').CronJob;
 const schedule = require('./schedule');
@@ -39,7 +39,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', api);
 
 app.post(`/bot${TELEGRAM_BOT_TOKEN}`, function(request, response){
-  telegammBot.processUpdate(request.body);
+  telegramBot.processUpdate(request.body);
 });
 
 app.use(express.static(__dirname));
