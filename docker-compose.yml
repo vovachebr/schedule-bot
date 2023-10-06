@@ -3,6 +3,9 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./client
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
+        REACT_APP_STUDENT_TAG_ID: ${REACT_APP_STUDENT_TAG_ID}
     restart: unless-stopped
     env_file:
       - .env

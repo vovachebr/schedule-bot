@@ -1,5 +1,9 @@
 FROM node:16-alpine as build
 WORKDIR /app
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL $REACT_APP_API_URL
+ARG REACT_APP_STUDENT_TAG_ID
+ENV REACT_APP_STUDENT_TAG_ID $REACT_APP_STUDENT_TAG_ID
 COPY --chown=node:node package*.json ./
 RUN npm install
 COPY --chown=node:node . .
