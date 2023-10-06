@@ -1,12 +1,12 @@
 require('dotenv').config();
-const { PORT, DISCORD_BOT_TOKEN, TELEGRAM_BOT_TOKEN } = process.env;
+const { DISCORD_BOT_TOKEN, TELEGRAM_BOT_TOKEN } = process.env;
 const express = require('express');
 const basicAuth = require('express-basic-auth');
 const path = require('path');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const api = require('./routes').router;
-const telegammBot = require('./telegramBot');
+const telegramBot = require('./telegramBot');
 const discordBot = require('./discordBot');
 const CronJob = require('cron').CronJob;
 const schedule = require('./schedule');
@@ -39,7 +39,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', api);
 
 app.post(`/bot${TELEGRAM_BOT_TOKEN}`, function(request, response){
-  telegammBot.processUpdate(request.body);
+  telegramBot.processUpdate(request.body);
 });
 
 app.use(express.static(__dirname));
@@ -48,4 +48,5 @@ app.get("/*", function(req, res) {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`Server started at ${PORT}`));
