@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { PORT, DISCORD_BOT_TOKEN, TELEGRAM_BOT_TOKEN } = process.env;
+const { DISCORD_BOT_TOKEN, TELEGRAM_BOT_TOKEN } = process.env;
 const express = require('express');
 const basicAuth = require('express-basic-auth');
 const path = require('path');
@@ -48,4 +48,5 @@ app.get("/*", function(req, res) {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`Server started at ${PORT}`));
