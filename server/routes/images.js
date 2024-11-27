@@ -53,7 +53,7 @@ router.get("/getImageByName:name?",async (request, response) => {
     try {
       response.send(imageElement.image.buffer);
     } catch (e) {
-      Logger.sendMessage(`Ошибка при получении изображения: ${name}`, discordBot);
+      Logger.sendMessage(`Ошибка при получении изображения: ${name}`);
       response.status(404).send();
     }
   })

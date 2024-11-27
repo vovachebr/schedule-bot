@@ -11,6 +11,7 @@ const templates = require('./templates');
 const images = require('./images');
 const defaultLessons = require('./defaultLessons');
 const coordinators = require('./coordinators');
+const loop = require('../loopBot');
 
 router.use('/hooks', hooks);
 router.use('/lessons', lessons);
@@ -18,6 +19,7 @@ router.use('/templates', templates);
 router.use('/images', images);
 router.use('/defaultLessons', defaultLessons);
 router.use('/coordinators', coordinators);
+router.use('/loop', loop);
 
 router.get("/start", function(request, response) {
   schedule.scheduler();
@@ -31,6 +33,7 @@ router.post("/sendInstantMessage", (request, response) => {
   const configer = {
     telegram: schedule.sendTelegramMessage,
     discord: schedule.sendDiscordMessage,
+    loop: schedule.sendLoopMessage,
   };
 
   connect(async (client) => {

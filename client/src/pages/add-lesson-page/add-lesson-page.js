@@ -67,7 +67,7 @@ function AddLessonPage({enqueueSnackbar}) {
   const [additional, setAdditional] = React.useState("");
   const [backgroundsList, setBackgroundsList] = React.useState([]);
   const [imageNameToSend, setImageNameToSend] = React.useState("");
-  const [templateToSend, setTemplateToSend] = React.useState(`<@&${process.env.REACT_APP_STUDENT_TAG_ID}> Добрый день!
+  const [templateToSend, setTemplateToSend] = React.useState(`@channel Добрый день!
 Сегодня, **{date}**, в **{time}** по московскому времени состоится занятие «{lesson}». Его проведет **{lector}**.
 {additional}
 
@@ -264,7 +264,7 @@ function AddLessonPage({enqueueSnackbar}) {
                 onChange={event => setTemplateToSend(event.target.value)}
               />
               <ul className={classes.liHelper}>
-                <li>{`<@&${process.env.REACT_APP_STUDENT_TAG_ID}> для тега всех студентов`}</li>
+                <li>{`@channel для тега всех студентов`}</li>
                 <li>{`{date} для добавления даты занятия`}</li>
                 <li>{`{time} для добавления времени занятия`}</li>
                 <li>{`{lesson} для добавления темы занятия`}</li>

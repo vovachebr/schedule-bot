@@ -25,10 +25,10 @@
     "mongodb": "^3.5.2",
     "morgan": "^1.9.1",
     "multer": "^1.4.2",
+    "node-fetch": "^2.7.0",
     "node-telegram-bot-api": "^0.40.0",
     "node-uuid": "^1.4.8",
-    "nodemon": "^2.0.2",
-    "request": "^2.88.0"
+    "nodemon": "^2.0.2"
   },
   "browserslist": {
     "production": [

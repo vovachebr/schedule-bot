@@ -98,7 +98,7 @@ router.get("/removeAllSentLessons", async function(request, response) {
     const db = client.db("schedule");
     const lessonsCollection = db.collection("lessons");
     lessonsCollection.deleteMany({isSent: { $eq: true }});
-    Logger.sendMessage("Удалены все отправленные сообщения", discordBot);
+    Logger.sendMessage("Удалены все отправленные сообщения");
     response.send("Удалены все отправленные сообщения");
   });
 });

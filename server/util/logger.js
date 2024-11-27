@@ -1,22 +1,22 @@
 const { connect } = require('./mongoConnector');
+const telegramBot = require("../telegramBot");
 
 class Logger {
-  static sendUserTextMessage(user = {}, channelName, message, botToSend){
+  static sendUserTextMessage(userName, channelName, message){
     let sendMessage = message + "\n";
-    sendMessage += `Пользователь: <@${user.id}>\n`;
-    sendMessage += "Имя: *" + user.real_name + "*\n";
-    sendMessage += "Из группы: *" + channelName + "*\n";
-    this.sendMessage(sendMessage, botToSend);
+    sendMessage += `Пользователь: <@${userName}>\n`;
+    sendMessage += "Имя: *" + userName + "*\n";
+    sendMessage += "В группу: *" + channelName + "*\n";
+    this.sendMessage(sendMessage);
   }
 
-  static sendMessage(message, botToSend){
+  static sendMessage(message){
     connect(async (client) => {
       const db = client.db("schedule");
       const hooksCollection = db.collection("hooks");
-      const hook = await hooksCollection.findOne({channel: "sheduler-center"});
-      if(hook && botToSend) {
-        const channel = botToSend.channels.cache.get(hook.channelId);
-        channel.send(message);
+      const hook = await hooksCollection.findOne({group: "sheduler-center"});
+      if(hook) {
+        telegramBot.sendMessage(Number(hook.channelId), '```json \n' + message + '```', {parse_mode: 'MarkdownV2'});
       }
     });
   }

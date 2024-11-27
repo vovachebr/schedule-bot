@@ -1,4 +1,5 @@
-const { URL } = process.env;
+const { URL, LOOP_URL, LOOP_BOT_TOKEN } = process.env;
+
 const telegramBot = require('./telegramBot');
 const discordBot = require('./discordBot');
 const Logger = require('./util/logger');
@@ -19,7 +20,7 @@ const formatLessonForLogger = (lessonObject) => {
 }
 
 function schedule(){
-  Logger.sendMessage("Запускаю отправку всех сообщений", discordBot);
+  Logger.sendMessage("Запускаю отправку всех сообщений");
   connect(async dataBaseClient => {
     const db = dataBaseClient.db("schedule");
     const lessonsCollection = db.collection("lessons");
@@ -41,7 +42,7 @@ function schedule(){
 }
 
 function startTemplates() {
-  Logger.sendMessage("Запускаю отправку всех шаблонов", discordBot);
+  Logger.sendMessage("Запускаю отправку всех шаблонов");
   const today = new Date().toISOString().slice(0,10); // сегодня в формате YYYY-MM-DD
 
   const configer = {
@@ -75,12 +76,12 @@ function startTemplates() {
 
 function sendLessonNotification(lesson, hook){
   if(!hook){
-    Logger.sendMessage("*Ошибка!* Не найден хук для занятия. Отправка не была выполнена. \n" + formatLessonForLogger(lesson), discordBot);
+    Logger.sendMessage("*Ошибка!* Не найден хук для занятия. Отправка не была выполнена. \n" + formatLessonForLogger(lesson));
     return;
   }
 
   if(!hook.messegerType){
-    Logger.sendMessage("*Ошибка!* Отсутствует тип месседжера. Отправка не была выполенна. \n" + formatLessonForLogger(lesson), discordBot);
+    Logger.sendMessage("*Ошибка!* Отсутствует тип месседжера. Отправка не была выполенна. \n" + formatLessonForLogger(lesson));
     return;
   }
 
@@ -93,8 +94,8 @@ function sendLessonNotification(lesson, hook){
 
       telegramBot.sendPhoto(hook.channelId, imageLink, {parse_mode: 'Markdown', caption: textToSend}).then((sentMessage) => {
         telegramBot.pinChatMessage(sentMessage.chat.id, sentMessage.message_id).catch(error => Logger.sendMessage(`У бота нет прав для закрепления сообщения`, discordBot, discordBot));
-        Logger.sendMessage(`Уведомление успешно отправлено в *телеграмм* \n \`\`\` Группа: ${group} \`\`\` `, discordBot);
-      }).catch(error => Logger.sendMessage(`*Ошибка!* ${error.message}`, discordBot))
+        Logger.sendMessage(`Уведомление успешно отправлено в *телеграмм* \n \`\`\` Группа: ${group} \`\`\` `);
+      }).catch(error => Logger.sendMessage(`*Ошибка!* ${error.message}`))
     },
     discord: (lesson, hook) => {
       const channel = discordBot.channels.cache.get(hook.channelId);
@@ -119,7 +120,7 @@ function sendLessonNotification(lesson, hook){
           for(prop in loggerObject){
             sendMessage += `${prop}: *${loggerObject[prop]}* \n`;
           }
-          Logger.sendMessage(sendMessage, discordBot);
+          Logger.sendMessage(sendMessage);
       }).catch(err => {
         connect(async dataBaseClient => {
           const db = dataBaseClient.db("schedule");
@@ -133,16 +134,31 @@ function sendLessonNotification(lesson, hook){
           }
 
           sendMessage += JSON.stringify(err);
-          Logger.sendMessage(sendMessage, discordBot);
+          Logger.sendMessage(sendMessage);
         });
       });
+    },
+    loop: (lesson, hook) => {
+      const {group, image: imageName, lecture, teacher, time, date} = lesson;
+      const textToSend = getLessonText(lesson);
+      const imageLink = `${URL}/api/images/getImageByName?name=${imageName}`;
+      const loggerObject = {
+        "Тема занятия": lecture,
+        "Преподаватель": teacher,
+        "Группа": group,
+        "Изображение": imageName,
+        "Дата": date.split('-').reverse().join('.'),
+        "Время": time,
+      }
+
+      sendLoopMessage(hook, textToSend, imageLink, loggerObject);
     }
   }
 
   try {
     configuration[hook.messegerType] && configuration[hook.messegerType](lesson, hook); // Вызов конфигурации
   } catch (error) {
-    Logger.sendMessage(JSON.stringify({lesson, hook, error}), discordBot);
+    Logger.sendMessage(JSON.stringify({lesson, hook, error: {stack: error.stack, message: error.stack }}, null, 2));
   }
 }
 
@@ -153,12 +169,12 @@ function sendTelegramMessage(hook, message, imageLink, loggerObject = {}){
     telegramBot.sendPhoto(channelId, imageLink, {caption: message}) :
     telegramBot.sendMessage(channelId, message)).
       then((sentMessage) => {
-        telegramBot.pinChatMessage(sentMessage.chat.id, sentMessage.message_id).catch(error => Logger.sendMessage(`У бота нет прав для закрепления сообщения`, discordBot, discordBot));
+        telegramBot.pinChatMessage(sentMessage.chat.id, sentMessage.message_id).catch(error => Logger.sendMessage(`У бота нет прав для закрепления сообщения`));
         let sendMessage = "Сообщение успешно отправлено в телеграмм \n";
         for(prop in loggerObject){
           sendMessage += `${prop}: *${loggerObject[prop]}* \n`;
         }
-        Logger.sendMessage(sendMessage, discordBot);
+        Logger.sendMessage(sendMessage);
     });
 }
 
@@ -171,8 +187,28 @@ function sendDiscordMessage(hook, message, imageLink, loggerObject = {}){
       for(prop in loggerObject){
         sendMessage += `${prop}: *${loggerObject[prop]}* \n`;
       }
-      Logger.sendMessage(sendMessage, discordBot);
+      Logger.sendMessage(sendMessage);
   });
+}
+
+async function sendLoopMessage(hook, message, imageLink, loggerObject = {}){
+  await fetch(`${LOOP_URL}/api/v4/posts`, {
+    headers: {
+      'Authorization': 'Bearer ' + LOOP_BOT_TOKEN,
+    },
+    method: "POST",
+    body: JSON.stringify({
+      channel_id: hook.channelId,
+      message,
+      props: {
+        attachments: [
+          { image_url: imageLink } 
+        ]
+      }
+    })
+  });
+
+  Logger.sendMessage(JSON.stringify(loggerObject, null, 2));
 }
 
 
@@ -180,6 +216,7 @@ module.exports = {
   scheduler: schedule,
   sendTelegramMessage,
   sendDiscordMessage,
+  sendLoopMessage,
   sendLessonNotification,
   startTemplates,
 };
