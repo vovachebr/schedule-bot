@@ -1,13 +1,11 @@
 require('dotenv').config();
-const { DISCORD_BOT_TOKEN, TELEGRAM_BOT_TOKEN } = process.env;
+const { TELEGRAM_BOT_TOKEN } = process.env;
 const express = require('express');
-const basicAuth = require('express-basic-auth');
 const path = require('path');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const api = require('./routes').router;
 const telegramBot = require('./telegramBot');
-const discordBot = require('./discordBot');
 const CronJob = require('cron').CronJob;
 const schedule = require('./schedule');
 const job = new CronJob(
@@ -22,7 +20,6 @@ const job = new CronJob(
 );
 job.start();
 
-discordBot.login(DISCORD_BOT_TOKEN);
 const app = express();
 app.use(morgan('tiny'));
 

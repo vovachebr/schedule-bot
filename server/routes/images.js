@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const multer = require('multer');
-const discordBot = require('./../discordBot');
 const Logger = require('./../util/logger');
 const { connect } = require('./../util/mongoConnector');
 

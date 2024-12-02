@@ -3,7 +3,6 @@ const uuid = require('node-uuid');
 const router = require('express').Router();
 const { connect } = require('./../util/mongoConnector');
 const Logger = require('../util/logger');
-const discordBot = require('../discordBot');
 
 router.post("/add", (request, response) => {
   let { group, date, time, teacher, lecture, text, image, additional } = request.body;

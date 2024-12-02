@@ -1,4 +1,5 @@
 const { LOOP_URL, LOOP_BOT_TOKEN } = process.env;
+const fetch = require("node-fetch");
 
 async function sendLoopMessage(channelId, data) {
   return fetch(`${LOOP_URL}/api/v4/posts`, {

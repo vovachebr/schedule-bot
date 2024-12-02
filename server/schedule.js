@@ -1,7 +1,7 @@
 const { URL, LOOP_URL, LOOP_BOT_TOKEN } = process.env;
+const fetch = require("node-fetch");
 
 const telegramBot = require('./telegramBot');
-const discordBot = require('./discordBot');
 const Logger = require('./util/logger');
 const { connect } = require('./util/mongoConnector');
 const getLessonText = require('./util/lessonFormatter');
@@ -47,7 +47,7 @@ function startTemplates() {
 
   const configer = {
     telegram: schedule.sendTelegramMessage,
-    discord: schedule.sendDiscordMessage,
+    loop: schedule.sendLoopMessage,
   };
 
   connect(async (client) => {
@@ -93,50 +93,9 @@ function sendLessonNotification(lesson, hook){
       const imageLink = `${URL}/api/images/getImageByName?name=${imageName}`
 
       telegramBot.sendPhoto(hook.channelId, imageLink, {parse_mode: 'Markdown', caption: textToSend}).then((sentMessage) => {
-        telegramBot.pinChatMessage(sentMessage.chat.id, sentMessage.message_id).catch(error => Logger.sendMessage(`У бота нет прав для закрепления сообщения`, discordBot, discordBot));
+        telegramBot.pinChatMessage(sentMessage.chat.id, sentMessage.message_id).catch(error => Logger.sendMessage(`У бота нет прав для закрепления сообщения`));
         Logger.sendMessage(`Уведомление успешно отправлено в *телеграмм* \n \`\`\` Группа: ${group} \`\`\` `);
       }).catch(error => Logger.sendMessage(`*Ошибка!* ${error.message}`))
-    },
-    discord: (lesson, hook) => {
-      const channel = discordBot.channels.cache.get(hook.channelId);
-      // if(!channel) {
-      //   console.log(channel, hook);
-      // }
-      /// return;
-      const {group, image: imageName, teacher, date, time, lecture} = lesson;
-      const textToSend = getLessonText(lesson);
-      const loggerObject = {
-        "Тема занятия": lecture,
-        "Преподаватель": teacher,
-        "Группа": group,
-        "Изображение": imageName,
-        "Дата": date.split('-').reverse().join('.'),
-        "Время": time,
-      }
-      const imageLink = `${URL}/api/images/getImageByName?name=${imageName}`;
-
-      channel.send(textToSend, { files: [{ attachment: imageLink, name: 'picture.png' }] }).then(success => {
-        let sendMessage = "Уведомление успешно отправлено в дискорд \n"
-          for(prop in loggerObject){
-            sendMessage += `${prop}: *${loggerObject[prop]}* \n`;
-          }
-          Logger.sendMessage(sendMessage);
-      }).catch(err => {
-        connect(async dataBaseClient => {
-          const db = dataBaseClient.db("schedule");
-          const coordinatorsCollection = db.collection("coordinators");
-          const coordinator = await coordinatorsCollection.findOne({group});
-          const coordinatorNotification = (coordinator && `<@${coordinator.id}>`) || "@here";
-          let sendMessage = `*FATAL ERROR!!!* ${coordinatorNotification} Неизвестная ошибка. \n\n`;
-          
-          for(prop in loggerObject){
-            sendMessage += `${prop}: *${loggerObject[prop]}* \n`;
-          }
-
-          sendMessage += JSON.stringify(err);
-          Logger.sendMessage(sendMessage);
-        });
-      });
     },
     loop: (lesson, hook) => {
       const {group, image: imageName, lecture, teacher, time, date} = lesson;
@@ -178,18 +137,6 @@ function sendTelegramMessage(hook, message, imageLink, loggerObject = {}){
     });
 }
 
-function sendDiscordMessage(hook, message, imageLink, loggerObject = {}){
-  const channel = discordBot.channels.cache.get(hook.channelId);
-  const files = imageLink ? { files: [{ attachment: imageLink, name: 'picture.png' }] } : undefined;
-  
-  channel.send(message, files).then(success => {
-    let sendMessage = "Уведомление успешно отправлено в дискорд \n"
-      for(prop in loggerObject){
-        sendMessage += `${prop}: *${loggerObject[prop]}* \n`;
-      }
-      Logger.sendMessage(sendMessage);
-  });
-}
 
 async function sendLoopMessage(hook, message, imageLink, loggerObject = {}){
   await fetch(`${LOOP_URL}/api/v4/posts`, {
@@ -215,7 +162,6 @@ async function sendLoopMessage(hook, message, imageLink, loggerObject = {}){
 module.exports = {
   scheduler: schedule,
   sendTelegramMessage,
-  sendDiscordMessage,
   sendLoopMessage,
   sendLessonNotification,
   startTemplates,
