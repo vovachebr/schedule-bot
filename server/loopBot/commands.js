@@ -11,15 +11,15 @@ router.post("/create_hook", async (request, response) => {
   const channelName = request.body.channel_name;
   const userId = request.body.user_id;
 
-  const userFetchGroupsFullResponse = await fetch(`${LOOP_URL}/api/v4/users/${userId}/groups`, {
+  const userFetchFullResponse = await fetch(`${LOOP_URL}/api/v4/users/${userId}`, {
     headers: {
       "Authorization": "Bearer " + LOOP_BOT_TOKEN,
     }
   });
 
-  const userFetchGroupsResponse = await userFetchGroupsFullResponse.json();
+  const userFetchResponse = await userFetchFullResponse.json();
 
-  if(!userFetchGroupsResponse.some(group => group.name === "scheduler-team")) {
+  if(!(userFetchResponse.roles.includes("system_user") && userFetchResponse.roles.includes("system_admin"))) {
     response.json({
       response_type: "ephemeral",
       text: "Ошибка! Команда доступна только администраторам."
@@ -55,15 +55,15 @@ router.post("/remove_hook", async (request, response) => {
   const channelName = request.body.channel_name;
   const userId = request.body.user_id;
 
-  const userFetchGroupsFullResponse = await fetch(`${LOOP_URL}/api/v4/users/${userId}/groups`, {
+  const userFetchFullResponse = await fetch(`${LOOP_URL}/api/v4/users/${userId}`, {
     headers: {
       "Authorization": "Bearer " + LOOP_BOT_TOKEN,
     }
   });
 
-  const userFetchGroupsResponse = await userFetchGroupsFullResponse.json();
+  const userFetchResponse = await userFetchFullResponse.json();
 
-  if(!userFetchGroupsResponse.some(group => group.name === "scheduler-team")) {
+  if(!(userFetchResponse.roles.includes("system_user") && userFetchResponse.roles.includes("system_admin"))) {
     response.json({
       response_type: "ephemeral",
       text: "Ошибка! Команда доступна только администраторам."
