@@ -67,11 +67,12 @@ function AddLessonPage({enqueueSnackbar}) {
   const [additional, setAdditional] = React.useState("");
   const [backgroundsList, setBackgroundsList] = React.useState([]);
   const [imageNameToSend, setImageNameToSend] = React.useState("");
-  const [templateToSend, setTemplateToSend] = React.useState(`@channel Добрый день!
+  const [templateToSend, setTemplateToSend] = React.useState(`Добрый день!
 Сегодня, **{date}**, в **{time}** по московскому времени состоится занятие «{lesson}». Его проведет **{lector}**.
 {additional}
 
 Ссылку на трансляцию вы найдёте в личном кабинете и в письме, которое сегодня придёт вам на почту за два часа до лекции.
+Ввиду сбоев в работе МТС.Линк в Яндекс.Браузере, советуем воспользоваться браузером Google Chrome для стабильной работы.
 `);
 
   const getDate = () => {
