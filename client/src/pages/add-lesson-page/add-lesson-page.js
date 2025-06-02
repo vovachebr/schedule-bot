@@ -68,7 +68,7 @@ function AddLessonPage({enqueueSnackbar}) {
   const [backgroundsList, setBackgroundsList] = React.useState([]);
   const [imageNameToSend, setImageNameToSend] = React.useState("");
   const [templateToSend, setTemplateToSend] = React.useState(`Добрый день!
-Сегодня, **{date}**, в **{time}** по московскому времени состоится занятие «{lesson}». Его проведет **{lector}**.
+Сегодня, **{date}**, в **{time}** по московскому времени состоится занятие «{lesson}». Его проведёт **{lector}**.
 {additional}
 
 Ссылку на трансляцию вы найдёте в личном кабинете и в письме, которое сегодня придёт вам на почту за два часа до лекции.
